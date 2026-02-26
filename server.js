@@ -4,15 +4,18 @@ const cors = require('cors');
 const path = require('path');
 
 const app = express();
-const PORT = 3000;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// Datenbank initialisieren
-const db = new Database('rhinos.db');
+// Datenbank initialisieren (im tmp Folder für Vercel)
+const dbPath = process.env.VERCEL 
+  ? '/tmp/rhinos.db' 
+  : path.join(__dirname, 'rhinos.db');
+
+const db = new Database(dbPath);
 
 // Tabellen erstellen
 db.exec(`
@@ -98,7 +101,16 @@ app.delete('/api/tasks/:id', (req, res) => {
   res.json({ success: true });
 });
 
-// Server starten
-app.listen(PORT, () => {
-  console.log(`🦏 Rhinos Project Manager läuft auf http://localhost:${PORT}`);
-});
+// Export für Vercel
+module.exports = app;
+
+// Server nur lokal starten
+if (process.env.VERCEL) {
+  console.log('🦏 Rhinos Project Manager läuft auf Vercel');
+} else {
+  const PORT = 3000;
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🦏 Rhinos Project Manager läuft auf http://localhost:${PORT}`);
+    console.log(`📱 Im lokalen Netzwerk: http://192.168.1.13:${PORT}`);
+  });
+}
