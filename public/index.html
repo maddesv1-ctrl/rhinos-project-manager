@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rhinos Project Manager</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      color: #667eea;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .emoji {
+      font-size: 1.5em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      color: #333;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #555;
+      font-weight: 500;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #e0e0e0;
+      border-radius: 5px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    .item-list {
+      list-style: none;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .item {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      border-left: 4px solid #667eea;
+    }
+
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .item-title {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .item-meta {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-active {
+      background: #c8e6c9;
+      color: #2e7d32;
+    }
+
+    .status-todo {
+      background: #ffe0b2;
+      color: #f57c00;
+    }
+
+    .status-done {
+      background: #c8e6c9;
+      color: #2e7d32;
+    }
+
+    .status-progress {
+      background: #bbdefb;
+      color: #1976d2;
+    }
+
+    .actions {
+      display: flex;
+      gap: 5px;
+      margin-top: 10px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><span class="emoji">🦏</span> Rhinos Project Manager</h1>
+      <p style="color: #666; margin-top: 5px;">Einfaches Projekt Management für Rhine River Rhinos</p>
+    </header>
+
+    <div class="grid">
+      <!-- Projekte -->
+      <div class="card">
+        <h2>📁 Projekte</h2>
+        <form id="projectForm">
+          <div class="form-group">
+            <label for="projectName">Projektname</label>
+            <input type="text" id="projectName" placeholder="z.B. Saison 2026" required>
+          </div>
+          <div class="form-group">
+            <label for="projectDesc">Beschreibung</label>
+            <textarea id="projectDesc" rows="3" placeholder="Kurze Beschreibung..."></textarea>
+          </div>
+          <button type="submit">Projekt erstellen</button>
+        </form>
+
+        <div style="margin-top: 20px;">
+          <h3 style="margin-bottom: 10px; color: #555;">Alle Projekte</h3>
+          <ul class="item-list" id="projectList"></ul>
+        </div>
+      </div>
+
+      <!-- Tasks -->
+      <div class="card">
+        <h2>✅ Tasks</h2>
+        <form id="taskForm">
+          <div class="form-group">
+            <label for="taskProject">Projekt</label>
+            <select id="taskProject" required>
+              <option value="">Projekt wählen...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="taskTitle">Task Titel</label>
+            <input type="text" id="taskTitle" placeholder="z.B. Tickets buchen" required>
+          </div>
+          <div class="form-group">
+            <label for="taskDesc">Beschreibung</label>
+            <textarea id="taskDesc" rows="2" placeholder="Details..."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="taskAssigned">Zugewiesen an</label>
+            <input type="text" id="taskAssigned" placeholder="Name...">
+          </div>
+          <div class="form-group">
+            <label for="taskDue">Fällig bis</label>
+            <input type="date" id="taskDue">
+          </div>
+          <button type="submit">Task erstellen</button>
+        </form>
+
+        <div style="margin-top: 20px;">
+          <h3 style="margin-bottom: 10px; color: #555;">Alle Tasks</h3>
+          <ul class="item-list" id="taskList"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = '';
+
+    // Projekte laden
+    async function loadProjects() {
+      const res = await fetch(`${API_URL}/api/projects`);
+      const projects = await res.json();
+      
+      const list = document.getElementById('projectList');
+      const select = document.getElementById('taskProject');
+      
+      if (projects.length === 0) {
+        list.innerHTML = '<li class="empty-state">Noch keine Projekte</li>';
+        return;
+      }
+
+      list.innerHTML = projects.map(p => `
+        <li class="item">
+          <div class="item-header">
+            <span class="item-title">${escapeHtml(p.name)}</span>
+            <span class="status-badge status-${p.status === 'active' ? 'active' : 'done'}">${p.status}</span>
+          </div>
+          <div class="item-meta">${p.description || 'Keine Beschreibung'}</div>
+          <div class="actions">
+            <button class="btn-small btn-danger" onclick="deleteProject(${p.id})">Löschen</button>
+          </div>
+        </li>
+      `).join('');
+
+      select.innerHTML = '<option value="">Projekt wählen...</option>' + 
+        projects.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('');
+    }
+
+    // Tasks laden
+    async function loadTasks() {
+      const res = await fetch(`${API_URL}/api/tasks`);
+      const tasks = await res.json();
+      
+      const list = document.getElementById('taskList');
+      
+      if (tasks.length === 0) {
+        list.innerHTML = '<li class="empty-state">Noch keine Tasks</li>';
+        return;
+      }
+
+      list.innerHTML = tasks.map(t => `
+        <li class="item">
+          <div class="item-header">
+            <span class="item-title">${escapeHtml(t.title)}</span>
+            <span class="status-badge status-${t.status === 'done' ? 'done' : 'todo'}">${t.status}</span>
+          </div>
+          <div class="item-meta">
+            ${t.project_name ? `📁 ${escapeHtml(t.project_name)}` : ''} 
+            ${t.assigned_to ? `👤 ${escapeHtml(t.assigned_to)}` : ''}
+            ${t.due_date ? `📅 ${t.due_date}` : ''}
+          </div>
+          <div class="item-meta" style="margin-top: 5px;">${t.description || 'Keine Beschreibung'}</div>
+          <div class="actions">
+            <button class="btn-small btn-success" onclick="completeTask(${t.id})">Fertig</button>
+            <button class="btn-small btn-danger" onclick="deleteTask(${t.id})">Löschen</button>
+          </div>
+        </li>
+      `).join('');
+    }
+
+    // Projekt erstellen
+    document.getElementById('projectForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('projectName').value;
+      const description = document.getElementById('projectDesc').value;
+
+      await fetch(`${API_URL}/api/projects`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, description })
+      });
+
+      document.getElementById('projectForm').reset();
+      loadProjects();
+    });
+
+    // Task erstellen
+    document.getElementById('taskForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const project_id = document.getElementById('taskProject').value;
+      const title = document.getElementById('taskTitle').value;
+      const description = document.getElementById('taskDesc').value;
+      const assigned_to = document.getElementById('taskAssigned').value;
+      const due_date = document.getElementById('taskDue').value;
+
+      await fetch(`${API_URL}/api/tasks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project_id, title, description, assigned_to, due_date })
+      });
+
+      document.getElementById('taskForm').reset();
+      loadTasks();
+    });
+
+    // Projekt löschen
+    async function deleteProject(id) {
+      if (!confirm('Projekt wirklich löschen?')) return;
+      await fetch(`${API_URL}/api/projects/${id}`, { method: 'DELETE' });
+      loadProjects();
+      loadTasks();
+    }
+
+    // Task löschen
+    async function deleteTask(id) {
+      if (!confirm('Task wirklich löschen?')) return;
+      await fetch(`${API_URL}/api/tasks/${id}`, { method: 'DELETE' });
+      loadTasks();
+    }
+
+    // Task als fertig markieren
+    async function completeTask(id) {
+      await fetch(`${API_URL}/api/tasks/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'done' })
+      });
+      loadTasks();
+    }
+
+    // HTML Escape
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Initial laden
+    loadProjects();
+    loadTasks();
+  </script>
+</body>
+</html>
